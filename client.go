@@ -2,7 +2,6 @@ package client
 
 import (
 	"crypto/tls"
-	"errors"
 	"io"
 	"io/ioutil"
 	"net"
@@ -41,8 +40,6 @@ func NewHTTPClient(debugProxy *url.URL, headers map[string]string,
 		headers: headers,
 	}
 }
-
-var ErrServerFailure = errors.New("server error")
 
 func (p *HTTPClient) Do(method, url, body string, extraHeaders map[string]string,
 	retryTimes int) (statusCode int, header http.Header, respBody []byte, err error) {
