@@ -11,7 +11,7 @@ func AutoPagination(startPage int, p SinglePagination) error {
 			return err
 		}
 		page = nextPage
-		if page < 0 {
+		if page <= 0 {
 			return nil
 		}
 	}
