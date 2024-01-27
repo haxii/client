@@ -15,6 +15,7 @@ type QueryAllPageConfig struct {
 	PageParamName     string               // 页码字段在 url query / json body 中的名字
 	PageSizeParamName string               // 每页返回的数量在 url query / json body 中的名字
 	ListPath          string               // list 数据在返回的 response 中的 path
+	DetailExtractPath string               // list 中单条数据内容转换，为空则不转换
 	TotalPath         string               // total 数据在返回的 response 中的 path
 	MinDurationFunc   func() time.Duration // 每次请求的间隔时间
 }
@@ -33,7 +34,7 @@ func DefaultQueryAllPageConfig() *QueryAllPageConfig {
 	}
 }
 
-func (c QueryAllPageConfig) CheckErr() error {
+func (c *QueryAllPageConfig) CheckErr() error {
 	if c.StartPage < 0 {
 		return errors.New("invalid start page")
 	} else if len(c.PageParamName) == 0 {
@@ -83,7 +84,7 @@ func (c *QueryAllPageConfig) WithMinDurationFunc(v func() time.Duration) *QueryA
 	return c
 }
 
-func (c QueryAllPageConfig) MakeURL(sourceURL string, page int) (string, error) {
+func (c *QueryAllPageConfig) MakeURL(sourceURL string, page int) (string, error) {
 	urlObj, err := url.Parse(sourceURL)
 	if err != nil {
 		return "", err
@@ -95,7 +96,7 @@ func (c QueryAllPageConfig) MakeURL(sourceURL string, page int) (string, error) 
 	return urlObj.String(), nil
 }
 
-func (c QueryAllPageConfig) MakeJSONBody(jsonBody []byte, page int) ([]byte, error) {
+func (c *QueryAllPageConfig) MakeJSONBody(jsonBody []byte, page int) ([]byte, error) {
 	req := make(map[string]json.RawMessage, 0)
 	err := json.Unmarshal(jsonBody, &req)
 	if err != nil {
