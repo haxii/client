@@ -18,6 +18,7 @@ type QueryAllPageConfig struct {
 	DetailExtractPath string               // list 中单条数据内容转换，为空则不转换
 	TotalPath         string               // total 数据在返回的 response 中的 path
 	MinDurationFunc   func() time.Duration // 每次请求的间隔时间
+	MaxCount          int                  // 最大获取数量
 }
 
 func DefaultQueryAllPageConfig() *QueryAllPageConfig {
@@ -81,6 +82,11 @@ func (c *QueryAllPageConfig) WithTotalPath(v string) *QueryAllPageConfig {
 
 func (c *QueryAllPageConfig) WithMinDurationFunc(v func() time.Duration) *QueryAllPageConfig {
 	c.MinDurationFunc = v
+	return c
+}
+
+func (c *QueryAllPageConfig) WithMaxCount(v int) *QueryAllPageConfig {
+	c.MaxCount = v
 	return c
 }
 
