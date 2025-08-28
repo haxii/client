@@ -1,7 +1,6 @@
 package client
 
 import (
-	"context"
 	"crypto/tls"
 	"io"
 	"net"
@@ -22,14 +21,8 @@ func NewHTTPClient(debugProxy *url.URL, headers map[string]string,
 	transport := &http.Transport{
 		MaxIdleConnsPerHost: 2 * maxConn,
 		MaxConnsPerHost:     maxConn,
-		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
-			conn, err := (&net.Dialer{Timeout: dialTimeout}).DialContext(ctx, network, addr)
-			return &timeoutConn{
-				Conn:        conn,
-				readTimeout: fullTimeout,
-			}, err
-		},
-		Proxy: func(request *http.Request) (url *url.URL, e error) { return debugProxy, nil },
+		DialContext:         (&net.Dialer{Timeout: dialTimeout}).DialContext,
+		Proxy:               func(request *http.Request) (url *url.URL, e error) { return debugProxy, nil },
 	}
 	if debugProxy != nil {
 		// for proxy debug only
@@ -114,14 +107,4 @@ func (p *HTTPClient) DoStream(method, url string, body io.Reader, extraHeaders m
 		return -1, nil, nil, err
 	}
 	return res.StatusCode, res.Header.Clone(), res.Body, err
-}
-
-type timeoutConn struct {
-	net.Conn
-	readTimeout time.Duration
-}
-
-func (c *timeoutConn) Read(b []byte) (int, error) {
-	_ = c.SetReadDeadline(time.Now().Add(c.readTimeout))
-	return c.Conn.Read(b)
 }
